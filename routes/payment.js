@@ -24,4 +24,14 @@ router.get('/paymentHistory', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+// Fetch all Payment History
+router.get('/paymentHistory/:id', async (req, res) => {
+  try {
+    const id =req.params;
+    const payment = await Payment.findById(id);
+    res.status(200).json(payment);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 module.exports = router;
