@@ -24,14 +24,22 @@ router.get('/paymentHistory', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-// Fetch all Payment History
-router.get('/paymentHistory/:id', async (req, res) => {
-  try {
-    const id =req.params;
-    const payment = await Payment.findById(id);
-    res.status(200).json(payment);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+// Fetch Payment History for a User by ID
+router.get('/paymentHistory/:userId', async (req, res) => {
+    try {
+      const userId = req.params.userId;
+  
+      // Assuming you have a Payment model with a field like "userId" to associate payments with users.
+      const payments = await Payment.find({ userId: userId });
+  
+      if (!payments) {
+        return res.status(404).json({ error: 'No payment history found for this user.' });
+      }
+  
+      res.status(200).json(payments);
+    } catch (err) {
+      res.status(500).json({ error: 'No Payment Found Server issue...' });
+    }
+  });
+  
 module.exports = router;
