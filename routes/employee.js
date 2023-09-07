@@ -19,10 +19,9 @@ router.post('/employees', async (req, res) => {
 router.get('/employees', async (req, res) => {
   try {
     const employees = await Employee.find();
-    res.json(employees);
+    res.status(200).json(employees);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-
 module.exports = router;
