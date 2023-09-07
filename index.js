@@ -42,6 +42,7 @@ app.use('/api', require('./routes/contact'));
 app.use('/api', require('./routes/OTP'));
 app.use('/api', require('./routes/form'))
 app.use('/api/employee', require('./routes/employee'))
+app.use('/api', require('./routes/payment'))
    // Admin 
   app.use((err, req, res, next) => {
     console.error(err.stack);
