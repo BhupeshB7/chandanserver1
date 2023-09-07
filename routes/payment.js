@@ -16,7 +16,7 @@ router.post('/payment', async (req, res) => {
 });
 
 // Fetch all employees
-router.get('/employees', async (req, res) => {
+router.get('/payment', async (req, res) => {
   try {
     const employees = await Payment.find();
     res.status(200).json(employees);
