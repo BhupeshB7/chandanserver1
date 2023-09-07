@@ -1,9 +1,9 @@
-// routes/employee.js
+// routes/payment.js
 const express = require('express');
 const router = express.Router();
 const Payment = require('../models/Payment');
 
-// Create a new employee
+// Create a new Payment History
 router.post('/payment', async (req, res) => {
   try {
     const { name, userId, payment, aadharNo } = req.body;
@@ -15,11 +15,11 @@ router.post('/payment', async (req, res) => {
   }
 });
 
-// Fetch all employees
-router.get('/payment', async (req, res) => {
+// Fetch all Payment History
+router.get('/paymentHistory', async (req, res) => {
   try {
-    const employees = await Payment.find();
-    res.status(200).json(employees);
+    const payment = await Payment.find();
+    res.status(200).json(payment);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
