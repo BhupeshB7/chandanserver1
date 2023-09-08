@@ -43,6 +43,9 @@ app.use('/api', require('./routes/OTP'));
 app.use('/api', require('./routes/form'))
 app.use('/api/employee', require('./routes/employee'))
 app.use('/api/payment', require('./routes/payment'))
+// Import and use your file routes
+const fileRoutes = require('./routes/fileRoutes');
+app.use('/api/files', fileRoutes);
    // Admin 
   app.use((err, req, res, next) => {
     console.error(err.stack);
