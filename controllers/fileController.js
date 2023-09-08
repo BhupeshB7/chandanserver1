@@ -1,5 +1,6 @@
 const File = require('../models/File');
-
+const fs = require('fs');
+const path = require('path');
 const uploadFile = async (req, res) => {
   console.log(req.files); // Check what's in req.files
   if (!req.files || Object.keys(req.files).length === 0) {
@@ -30,4 +31,30 @@ const uploadFile = async (req, res) => {
   }
 };
 
-module.exports = { uploadFile };
+
+const pdfsDirectory = path.join(__dirname, '../uploads');
+
+const getPdfList = (req, res) => {
+  fs.readdir(pdfsDirectory, (err, files) => {
+    if (err) {
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+
+    const pdfFiles = files.filter((file) => path.extname(file).toLowerCase() === '.pdf');
+    res.json({ pdfFiles });
+  });
+};
+
+const getPdf = (req, res) => {
+  const { filename } = req.params;
+  const filePath = path.join(pdfsDirectory, filename);
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ message: 'File not found.' });
+  }
+
+  const fileStream = fs.createReadStream(filePath);
+  fileStream.pipe(res);
+};
+
+module.exports = { uploadFile, getPdf, getPdfList };
