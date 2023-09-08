@@ -6,7 +6,7 @@ const router = express.Router();
 const Message = require('../models/Task')
 
 // Create a route to handle message submissions
-router.post('/api/messages', async (req, res) => {
+router.post('/messages', async (req, res) => {
     try {
       const { name, message } = req.body;
       const newMessage = new Message({ name, message });
