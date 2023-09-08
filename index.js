@@ -170,6 +170,7 @@ app.use('/api', require('./routes/OTP'));
 app.use('/api', require('./routes/form'))
 app.use('/api/employee', require('./routes/employee'))
 app.use('/api/payment', require('./routes/payment'))
+app.use('/api/', require('./routes/messsage'));
 
 app.post('/upload', upload.single('pdf'), async (req, res) => {
   try {
