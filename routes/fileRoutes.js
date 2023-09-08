@@ -1,9 +1,23 @@
+// routes/pdfRoutes.js
 const express = require('express');
 const router = express.Router();
-const fileController = require('../controllers/fileController');
+const multer = require('multer');
+const { v4: uuidv4 } = require('uuid');
+const pdfController = require('../controllers/fileController');
 
-router.post('/upload', fileController.uploadFile);
-router.post('/pdf', fileController.uploadFile);
-router.post('/:fileName', fileController.uploadFile);
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = uuidv4();
+    cb(null, `${uniqueSuffix}-${file.originalname}`);
+  },
+});
+
+const upload = multer({ storage });
+
+router.post('/uploads', upload.single('pdf'), pdfController.uploadPdf);
+router.get('/pdfs', pdfController.getPdfs);
 
 module.exports = router;
