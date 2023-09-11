@@ -17,7 +17,7 @@ router.post('/messages', async (req, res) => {
     }
   });
   // Fetch all users
-router.post( '/message',async (req, res) => {
+router.get( '/message',async (req, res) => {
   try {
     const message = await Message.find();
     res.status(200).json(message);
