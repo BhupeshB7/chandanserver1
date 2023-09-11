@@ -152,7 +152,7 @@ app.use('/api', require('./routes/OTP'));
 app.use('/api', require('./routes/form'))
 app.use('/api/employee', require('./routes/employee'))
 app.use('/api/payment', require('./routes/payment'))
-app.use('/api', require('./routes/messsage'));          
+app.use('/api/message', require('./routes/messsage'));          
 
 
 // Multer Configuration for File Upload
