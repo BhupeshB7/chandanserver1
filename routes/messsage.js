@@ -16,6 +16,14 @@ router.post('/messages', async (req, res) => {
       res.status(500).json({ error: 'Error submitting message' });
     }
   });
-  
+  // Fetch all users
+router.post( '/message',async (req, res) => {
+  try {
+    const message = await Message.find();
+    res.status(200).json(message);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
 
 module.exports = router;
