@@ -22,7 +22,7 @@ router.get( '/message',async (req, res) => {
     const message = await Message.find();
     res.status(200).json(message);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch users' });
+    res.status(500).json({ error: 'failed to fetch data' });
   }
 });
 
