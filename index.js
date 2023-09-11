@@ -121,7 +121,7 @@ const { v4: uuidv4 } = require('uuid');
 const passwordRoute = require('./routes/passwordReset');
 const register = require('./routes/register');
 const app = express();
-const port = process.env.PORT || 5500;
+const port = process.env.PORT || 5000;
 
 // Database setup (use your MongoDB connection string)
 mongoose.connect(process.env.MONGO_URL, {
@@ -131,24 +131,6 @@ mongoose.connect(process.env.MONGO_URL, {
 .then(()=>console.log('Connected to MONGODB'))
 .catch((error)=>console.log(error));
 
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = uuidv4();
-    cb(null, `${uniqueSuffix}-${file.originalname}`);
-  },
-});
-
-const upload = multer({ storage });
-
-const pdfSchema = new mongoose.Schema({
-  filename: String,
-});
-
-const Pdf = mongoose.model('Pdf', pdfSchema);
 
 app.use(cors());
 app.use(express.json());
@@ -170,25 +152,83 @@ app.use('/api', require('./routes/OTP'));
 app.use('/api', require('./routes/form'))
 app.use('/api/employee', require('./routes/employee'))
 app.use('/api/payment', require('./routes/payment'))
-app.use('/api', require('./routes/messsage'));
+app.use('/api', require('./routes/messsage'));          
 
+
+// Multer Configuration for File Upload
+const storage = multer.memoryStorage(); // Store files in memory as Buffer
+
+const upload = multer({ storage: storage });
+
+// Create MongoDB model for PDF documents
+const pdfSchema = new mongoose.Schema({
+  filename: String,
+  data: Buffer, // Store the file data as a Buffer in MongoDB
+});
+
+const PDF = mongoose.model('PDF', pdfSchema);
+
+// Routes
+app.use(express.json());
+
+// Upload PDF
 app.post('/upload', upload.single('pdf'), async (req, res) => {
+  const { originalname, buffer } = req.file;
+
   try {
-    const { filename } = req.file;
-    const newPdf = new Pdf({ filename });
-    await newPdf.save();
-    res.status(201).json({ message: 'PDF uploaded successfully' });
+    const pdf = new PDF({
+      filename: originalname,
+      data: buffer, // Store the file data as a Buffer in MongoDB
+    });
+    await pdf.save();
+    res.json({ message: 'PDF uploaded successfully' });
   } catch (error) {
-    res.status(500).json({ error: 'Error uploading the PDF' });
+    console.error('Error uploading PDF:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-app.get('/pdfs', async (req, res) => {
+// Fetch PDFs
+app.get('/fetch', async (req, res) => {
   try {
-    const pdfs = await Pdf.find({}, '-_id filename'); // Exclude the "_id" field from the response
+    const pdfs = await PDF.find();
     res.json(pdfs);
   } catch (error) {
-    res.status(500).json({ error: 'Error fetching PDFs' });
+    console.error('Error fetching PDFs:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+// Serve PDF
+app.get('/pdf/:id', async (req, res) => {
+    const { id } = req.params;
+  
+    try {
+      const pdf = await PDF.findById(id);
+      if (!pdf) {
+        return res.status(404).json({ message: 'PDF not found' });
+      }
+  
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader(
+        'Content-Disposition',
+        `inline; filename="${pdf.filename}"`
+      );
+      res.send(pdf.data);
+    } catch (error) {
+      console.error('Error serving PDF:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+  
+// Delete PDF
+app.delete('/delete/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await PDF.findByIdAndRemove(id);
+    res.json({ message: 'PDF deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting PDF:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
