@@ -25,12 +25,12 @@ router.get('/paymentHistory', async (req, res) => {
   }
 });
 // Fetch Payment History for a User by ID
-router.get('/paymentHistory/:userId', async (req, res) => {
+router.get('/paymentHistory/:aadharNumber', async (req, res) => {
     try {
-      const userId = req.params.userId;
+      const aadharNumber = req.params.aadharNumber;
   
       // Assuming you have a Payment model with a field like "userId" to associate payments with users.
-      const payments = await Payment.find({ userId: userId });
+      const payments = await Payment.find({ aadharNo: aadharNumber });
   
       if (!payments) {
         return res.status(404).json({ error: 'No payment history found for this user.' });
