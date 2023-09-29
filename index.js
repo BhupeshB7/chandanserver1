@@ -163,6 +163,8 @@ const storage = multer.memoryStorage(); // Store files in memory as Buffer
 
 const upload = multer({ storage: storage });
 
+// models/Pdf.js
+
 // Create MongoDB model for PDF documents
 const pdfSchema = new mongoose.Schema({
   filename: String,
@@ -170,9 +172,33 @@ const pdfSchema = new mongoose.Schema({
 });
 
 const PDF = mongoose.model('PDF', pdfSchema);
+const IDCard = new mongoose.Schema({
+  filename: String,
+  data: Buffer,
+  userId: String, // Add userId field to associate PDF with a user
+});
+
+const IDCards = mongoose.model('IDCard', IDCard);
 
 // Routes
 app.use(express.json());
+app.post('/IDCard/upload', upload.single('pdf'), async (req, res) => {
+  const { originalname, buffer } = req.file;
+  const { userId } = req.body; // Assuming userId is sent in the request body
+
+  try {
+    const pdf = new IDCards({
+      filename: originalname,
+      data: buffer,
+      userId, // Store the user ID in the PDF document
+    });
+    await pdf.save();
+    res.json({ message: 'IDCard uploaded successfully' });
+  } catch (error) {
+    console.error('Error uploading IDCard:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 // Upload PDF
 app.post('/upload', upload.single('pdf'), async (req, res) => {
@@ -191,6 +217,39 @@ app.post('/upload', upload.single('pdf'), async (req, res) => {
   }
 });
 
+
+// Serve PDF
+app.get('/idcard/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const pdf = await IDCards.findById(id);
+    if (!pdf) {
+      return res.status(404).json({ message: 'PDF not found' });
+    }
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      `inline; filename="${pdf.filename}"`
+    );
+    res.send(pdf.data);
+  } catch (error) {
+    console.error('Error serving PDF:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+// Fetch PDFs
+app.get('/IDCard/user/:userId', async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const pdfs = await IDCards.findOne({userId: userId});
+    res.json(pdfs);
+  } catch (error) {
+    console.error('Error fetching PDFs:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 // Fetch PDFs
 app.get('/fetch', async (req, res) => {
   try {
@@ -201,6 +260,7 @@ app.get('/fetch', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 // Serve PDF
 app.get('/pdf/:id', async (req, res) => {
     const { id } = req.params;
