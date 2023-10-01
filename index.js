@@ -153,6 +153,7 @@ app.use("/api/admin", require('./routes/Admin/admin'));
 app.use('/api', require('./routes/contact'));
 app.use('/api', require('./routes/OTP'));
 app.use('/api', require('./routes/form'))
+app.use('/api', require('./routes/EmployeeMonth'))
 app.use('/api/employee', require('./routes/employee'))
 app.use('/api/payment', require('./routes/payment'))
 app.use('/api/message', require('./routes/messsage'));          
