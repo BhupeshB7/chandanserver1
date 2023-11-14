@@ -308,6 +308,62 @@ app.get('/fetch', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+// Get all PDFs route
+// app.get('/resultsUser', async (req, res) => {
+//   try {
+//     const pdfs = await Results.find();
+//     res.json(pdfs);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send('Internal Server Error');
+//   }
+// });
+// Assuming your route is /resultsUser/:filename
+app.get('/resultsUser/:filename', async (req, res) => {
+  try {
+    const filename = req.params.filename;
+    const pdf = await Results.findOne({ filename });
+
+    if (!pdf) {
+      return res.status(404).json({ error: 'PDF not found' });
+    }
+
+    // Set Content-Type header to indicate that you are sending a PDF
+    res.setHeader('Content-Type', 'application/pdf');
+    res.send(pdf.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+// Assuming your route is /resultsUser/:filename
+app.delete('/resultsUser/:filename', async (req, res) => {
+  try {
+    const filename = req.params.filename;
+    const deletedResult = await Results.findOneAndDelete({ filename });
+
+    if (!deletedResult) {
+      return res.status(404).json({ error: 'PDF not found' });
+    }
+
+    res.json({ message: 'Result deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+// Assuming your route is /resultsUser
+app.get('/resultsUser', async (req, res) => {
+  try {
+    const { userId } = req.query;
+    const query = userId ? { userId } : {};
+    const pdfs = await Results.find(query);
+    res.json(pdfs);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 // Serve PDF
 app.get('/pdf/:id', async (req, res) => {
