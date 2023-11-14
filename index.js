@@ -330,7 +330,39 @@ app.get('/pdf/:id', async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
     }
   });
+ // Serve PDF
+app.get('/result', async (req, res) => {
   
+
+  try {
+    const pdf = await Results.find();
+    if (!pdf) {
+      return res.status(404).json({ message: 'Result not found' });
+    }
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      `inline; filename="${pdf.filename}"`
+    );
+    res.send(pdf.data);
+  } catch (error) {
+    console.error('Error serving PDF:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}); 
+// Delete PDF
+app.delete('result/delete/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await Results.findByIdAndRemove(id);
+    res.json({ message: 'PDF deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting PDF:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 // Delete PDF
 app.delete('/delete/:id', async (req, res) => {
   const { id } = req.params;
