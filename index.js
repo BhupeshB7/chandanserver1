@@ -181,8 +181,34 @@ const IDCard = new mongoose.Schema({
 
 const IDCards = mongoose.model('IDCard', IDCard);
 
+//Results
+const Result = new mongoose.Schema({
+  filename: String,
+  data: Buffer,
+  userId: String, // Add userId field to associate PDF with a user
+});
+
+const Results = mongoose.model('Result', Result);
+
 // Routes
 app.use(express.json());
+app.post('/Result/upload', upload.single('pdf'), async (req, res) => {
+  const { originalname, buffer } = req.file;
+  const { userId } = req.body; // Assuming userId is sent in the request body
+
+  try {
+    const pdf = new Results({
+      filename: originalname,
+      data: buffer,
+      userId, // Store the user ID in the PDF document
+    });
+    await pdf.save();
+    res.json({ message: 'Result uploaded successfully' });
+  } catch (error) {
+    console.error('Error uploading Result:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 app.post('/IDCard/upload', upload.single('pdf'), async (req, res) => {
   const { originalname, buffer } = req.file;
   const { userId } = req.body; // Assuming userId is sent in the request body
@@ -225,6 +251,27 @@ app.get('/idcard/:id', async (req, res) => {
 
   try {
     const pdf = await IDCards.findById(id);
+    if (!pdf) {
+      return res.status(404).json({ message: 'PDF not found' });
+    }
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      `inline; filename="${pdf.filename}"`
+    );
+    res.send(pdf.data);
+  } catch (error) {
+    console.error('Error serving PDF:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+// Serve Result
+app.get('/result/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const pdf = await Results.findById(id);
     if (!pdf) {
       return res.status(404).json({ message: 'PDF not found' });
     }
