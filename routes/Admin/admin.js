@@ -1,8 +1,8 @@
-const express = require('express');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const express = require("express");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 // const User = require('../../models/Admin/Admin');
-const User = require('../../models/User');
+const User = require("../../models/User");
 const router = express.Router();
 // const { hashPassword } = require('../../utils/passwordUtils');
 // const adminAuth = require('../../controllers/Admin/adminAuth')
@@ -38,8 +38,11 @@ const isAdminOrAuthenticatedMiddleware = async (req, res, next) => {
 
   try {
     // Check if the request contains a valid admin token
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
-      const aToken = req.headers.authorization.split(' ')[1];
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer ")
+    ) {
+      const aToken = req.headers.authorization.split(" ")[1];
       const decodedToken = jwt.verify(aToken, JWT_SECRET);
 
       // If the token is valid and the user is already authenticated, proceed with the login
@@ -51,36 +54,48 @@ const isAdminOrAuthenticatedMiddleware = async (req, res, next) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(400).json({ message: 'Invalid email or password' });
+      return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    if (user.role !== 'admin') {
-      return res.status(403).json({ message: 'You are not authorized to access this resource' });
+    if (user.role !== "admin") {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to access this resource" });
     }
 
     // If the user is an admin, store the user object in the request for further use
     req.adminUser = user;
     next();
   } catch (error) {
-    console.error('Error while checking admin status:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Error while checking admin status:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
 // For Admin login
-router.post('/login', isAdminOrAuthenticatedMiddleware, async (req, res) => {
+router.post("/login", isAdminOrAuthenticatedMiddleware, async (req, res) => {
   const { password } = req.body;
   const user = req.adminUser;
 
   try {
     // Check if the request contains a valid admin token
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
-      const aToken = req.headers.authorization.split(' ')[1];
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer ")
+    ) {
+      const aToken = req.headers.authorization.split(" ")[1];
       const decodedToken = jwt.verify(aToken, JWT_SECRET);
 
       // If the token is valid and the user is already authenticated, use it for authentication
       if (decodedToken) {
-        const aToken = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '6h' });
+        // Set the expiration time to 1 month (30 days * 24 hours * 60 minutes * 60 seconds)
+        const expiresInSixMonth = 180 * 24 * 60 * 60;
+
+        // Sign a new token with the updated expiration time
+        const aToken = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, {
+          expiresIn: expiresInSixMonth,
+        });
+        // const aToken = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '2m' });
         return res.json({ aToken });
       }
     }
@@ -88,19 +103,19 @@ router.post('/login', isAdminOrAuthenticatedMiddleware, async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid email or password' });
+      return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '6h' });
+    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, {
+      expiresIn: "6h",
+    });
 
     res.json({ token });
   } catch (error) {
-    console.error('Error while logging in:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Error while logging in:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
-
-
 
 // router.get('/api/users', async (req, res) => {
 //   const users = await User.find();
@@ -108,52 +123,50 @@ router.post('/login', isAdminOrAuthenticatedMiddleware, async (req, res) => {
 //   res.json(users);
 // });
 
-router.get('/api/users', async (req, res) => {
+router.get("/api/users", async (req, res) => {
   const searchQuery = req.query.search; // Get the search query parameter from the request
 
   // Use a regular expression to perform a case-insensitive search for the given query
-  const searchRegex = new RegExp(searchQuery, 'i');
+  const searchRegex = new RegExp(searchQuery, "i");
 
   // Find all users whose name or email matches the search query
   const users = await User.find({
     $or: [
       { name: searchRegex },
       { sponsorId: searchRegex },
-      { userId: searchRegex }
-    ]
+      { userId: searchRegex },
+    ],
   });
 
   res.json(users);
 });
 // Update user
 
-router.delete('/api/users/:id', async (req, res) => {
+router.delete("/api/users/:id", async (req, res) => {
   const { id } = req.params;
 
   const user = await User.findById(id);
 
   if (!user) {
-    return res.status(404).json({ message: 'User not found' });
+    return res.status(404).json({ message: "User not found" });
   }
-
 
   await User.findByIdAndDelete(id);
 
-  res.json({ message: 'User deleted successfully' });
+  res.json({ message: "User deleted successfully" });
 });
-router.delete('/api/deposit/:id', async (req, res) => {
+router.delete("/api/deposit/:id", async (req, res) => {
   const { id } = req.params;
 
   const user = await User.findById(id);
 
   if (!user) {
-    return res.status(404).json({ message: 'User not found' });
+    return res.status(404).json({ message: "User not found" });
   }
-
 
   await User.findByIdAndDelete(id);
 
-  res.json({ message: 'User deleted successfully' });
+  res.json({ message: "User deleted successfully" });
 });
 
 const isActive = (item) => item.is_active;
@@ -163,18 +176,14 @@ const countActiveItems = async (items) => {
   return activeItems.length;
 };
 
-
-
-
-
 // Get all users (admin only)
-router.get('/users', async (req, res) => {
-    try {
-      const users = await User.find();
-      res.send(users);
-    } catch (error) {
-      res.status(500).send({ error: 'Internal server error.' });
-    }
-  });
-  
+router.get("/users", async (req, res) => {
+  try {
+    const users = await User.find();
+    res.send(users);
+  } catch (error) {
+    res.status(500).send({ error: "Internal server error." });
+  }
+});
+
 module.exports = router;
