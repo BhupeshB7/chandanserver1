@@ -15,17 +15,34 @@ router.post('/generateOTP', async (req, res) => {
   const transporter = nodemailer.createTransport({
     service: "gmail", // e.g., 'Gmail'
     auth: {
-      user: 'globalsuccess080@gmail.com',
-      pass: 'zjymkcbmjxaslkgk',
+      user: 'jivikasfg@gmail.com',
+      pass: 'kkgwrdjycjjpzsfe',
     },
   });
  
+  // const mailOptions = {
+  //   from: 'jivikasfg@gmail.com',
+  //   to: email,
+  //   subject: 'Your one-time code',
+  //   text: `Your OTP is: ${otp}`,
+  // };
   const mailOptions = {
-    from: 'globalsuccess080@gmail.com',
+    from: 'jivikasfg@gmail.com',
     to: email,
-    subject: 'Your OTP Code',
-    text: `Your OTP is: ${otp}`,
-  };
+    subject: 'Your one-time code',
+    html: `
+        <h5 style="font-weight: bold;">JIVIKA SFG CMP</h5>
+        <hr style="border: 10px solid blue;">
+        <h6>Hi there, here is your one-time code</h6>
+        <p style="font-weight: bold;">${otp}</p>
+        <h6>Please enter the code into the prompt</h6>
+        <h5>Best</h5>
+        <p>The Chegg Team</p>
+        <p>This email was sent to ${email} because you interact with JivikaSFG service. Please do not reply.</p>
+    `,
+};
+
+// Now you can use nodemailer or your email sending mechanism to send this mailOptions.
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
