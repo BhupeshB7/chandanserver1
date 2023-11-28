@@ -37,7 +37,7 @@ router.post('/generateOTP', async (req, res) => {
         <p style="font-weight: bold;">${otp}</p>
         <p>Please enter the code into the prompt for SuccessFully verified your Account</p>
         <h5>Best</h5>
-        <p>The Jivika Team</p>
+        <p>The Jivika SFG CMP Team</p>
         <p>This email was sent to ${email} because you interact with JivikaSFG service. Please do not reply.</p>
     `,
 };

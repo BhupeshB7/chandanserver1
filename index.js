@@ -138,6 +138,46 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Create a CAPTCHA model
+const Captcha = mongoose.model('Captcha', {
+  code: String,
+});
+
+
+// Generate a random 6-letter code
+function generateCaptcha() {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789abcdefghijklmnopqrstuvwxyz';
+  let captcha = '';
+  for (let i = 0; i < 6; i++) {
+    captcha += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return captcha;
+}
+
+// Create and save a new CAPTCHA code
+app.post('/generateCaptcha', async (req, res) => {
+  const captchaCode = generateCaptcha();
+  const captcha = new Captcha({ code: captchaCode });
+
+  try {
+    await captcha.save();
+    res.json({ captchaCode });
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+// Verify CAPTCHA code
+app.post('/verifyCaptcha', async (req, res) => {
+  const { userEnteredCaptcha, captchaCode } = req.body;
+
+  if (userEnteredCaptcha === captchaCode) {
+    // CAPTCHA verified successfully, perform another process here
+    res.status(200).json({ success: true, message: 'CAPTCHA verified successfully!' });
+  } else {
+    res.status(400).json({ success: false, message: 'CAPTCHA verification failed!' });
+  }
+});
 
 // Routes
 app.use("/api/auth", require("./routes/auth"));
