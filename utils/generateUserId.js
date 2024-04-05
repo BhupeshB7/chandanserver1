@@ -1,13 +1,13 @@
-const fs = require('fs');
+// const fs = require('fs');
 
-// Read the count from a file or set it to 0
-let count = 0;
-try {
-  const data = fs.readFileSync('count.txt', 'utf8');
-  count = parseInt(data);
-} catch (err) {
-  console.error(err);
-}
+// // Read the count from a file or set it to 0
+// let count = 0;
+// try {
+//   const data = fs.readFileSync('count.txt', 'utf8');
+//   count = parseInt(data);
+// } catch (err) {
+//   console.error(err);
+// }
 
   //  const generateUserId = () => {
   
@@ -21,10 +21,10 @@ try {
 
 
   exports.generateUserId =() => {
-    count++;
+    // count++;
     const randomNumber = Math.floor(Math.random() * (9999999 - 1000000 + 1) + 1000000);
     const userID = `CMP${count.toString().padStart(2, '0')}${randomNumber}`;
     return userID;
   }
-  fs.writeFileSync('count.txt', count.toString(), 'utf8');
-// module.exports = generateUserId;
+  // module.exports = generateUserId;
+  // fs.writeFileSync('count.txt', count.toString(), 'utf8');
