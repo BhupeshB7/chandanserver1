@@ -9,6 +9,24 @@ const loanSchema = new mongoose.Schema({
   aadharNo: {
     type: String,
     required: true,
+  },
+  approved:{
+    type: Boolean,
+    default: false,
+  },
+  accountNo:{
+    type: Number,
+    unique: true,
+  },
+  ifscCode:{
+    type: String,
+    unique: true,
+  },
+  description:{
+    type: String,
+  },
+  amount:{
+    type: Number,
   }
 });
 

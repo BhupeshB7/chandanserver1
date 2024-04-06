@@ -41,7 +41,6 @@ router.post('/generateOTP', async (req, res) => {
         <p>This email was sent to ${email} because you interact with JivikaSFG service. Please do not reply.</p>
     `,
 };
-
 // Now you can use nodemailer or your email sending mechanism to send this mailOptions.
 
   transporter.sendMail(mailOptions, (error, info) => {
