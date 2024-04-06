@@ -134,7 +134,8 @@ mongoose.connect(process.env.MONGO_URL, {
 
 app.use(cors({
   // origin:"http://localhost:3000",
-  // origin:"https://jivikasfg.online"
+  origin:"https://jivikasfg.online",
+  // origin:"*"
 }));
 app.use(express.json());
 
